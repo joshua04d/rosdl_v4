@@ -1,2 +1,2 @@
 [console_scripts]
-rosdl = rosdl.cli:hello
+rosdl = rosdl.cli:cli

@@ -10,4 +10,4 @@ authors = [{ name = "Your Name", email = "you@example.com" }]
 dependencies = ["click"]
 
 [project.scripts]
-rosdl = "rosdl.cli:hello"
+rosdl = "rosdl.cli:cli"
