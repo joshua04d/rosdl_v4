@@ -105,3 +105,6 @@ def merge_pdfs_in_folder(folder_path, output_pdf):
     ]
     pdf_list.sort()
     return merge_pdfs(pdf_list, output_pdf)
+
+
+

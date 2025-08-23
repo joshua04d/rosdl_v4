@@ -1,1 +1,10 @@
 click
+
+[mat]
+numpy
+
+[pdf]
+PyPDF2
+pdf2image
+Pillow
+pytesseract
