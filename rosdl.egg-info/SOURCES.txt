@@ -3,6 +3,7 @@ pyproject.toml
 rosdl/__init__.py
 rosdl/addition.py
 rosdl/cli.py
+rosdl/mat.py
 rosdl.egg-info/PKG-INFO
 rosdl.egg-info/SOURCES.txt
 rosdl.egg-info/dependency_links.txt
