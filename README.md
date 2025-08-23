@@ -6,53 +6,95 @@ Minimal CLI utilities for small research workflows: simple math helpers and PDF 
 
 From the project root:
 
+- Install base package (CLI):
 ```powershell
 python -m pip install -e .
 python -m pip install -r requirements.txt
 ```
 
-Notes:
-- On Windows you may need to install system packages for some features:
-  - Poppler (for pdf2image / pdftotext). Add poppler\bin to PATH.
-  - Tesseract OCR. Add tesseract to PATH.
+- Install optional extras:
+  - Math extras:
+    ```powershell
+    python -m pip install -e ".[mat]"
+    ```
+  - PDF/OCR extras (requires system packages, see below):
+    ```powershell
+    python -m pip install -e ".[pdf]"
+    ```
+  - Or install the PDF packages individually:
+    ```powershell
+    python -m pip install PyPDF2 pdf2image Pillow pytesseract
+    ```
+
+## System requirements (Windows)
+
+- Poppler (for pdf2image / pdftotext): add poppler\bin to PATH.
+- Tesseract OCR (for OCR): add tesseract to PATH.
+Install via your package manager (Chocolatey) or download installers and add to PATH.
 
 ## Usage
 
-Run commands from the repo root (or after install the `rosdl` entrypoint will be available).
+Run commands from the repo root (or after installing the package the `rosdl` entrypoint will be available).
 
-
-1.PDF utilities:
+Basic
 ```powershell
-# split PDF into pages (creates folder with page_1.pdf, page_2.pdf, ...)
-rosdl pdf split input.pdf out/split
-
-# merge PDFs (use -o to specify output path)
-rosdl pdf merge file1.pdf file2.pdf -o merged.pdf
-
-# extract text -> writes a .txt file next to PDF (e.g. input.pdf -> input.txt) and prints the path
-rosdl pdf extract-text input.pdf
-
-# convert PDF pages to images (requires Poppler)
-rosdl pdf to-images input.pdf out/images
-
-# OCR a PDF (requires Tesseract)
-rosdl pdf ocr input.pdf
-
-# merge all PDFs in a folder
-rosdl pdf merge-folder some_folder output.pdf
+rosdl hello
 ```
 
-Viewing extracted text:
-- The extract-text / ocr commands write a .txt file. On Windows:
+Math
 ```powershell
-notepad input.txt
+rosdl mat addition 2 3
+rosdl mat subtraction 5 1
+```
+
+PDF utilities
+```powershell
+# split PDF into pages (will prompt for folder name if not provided)
+rosdl pdf split input.pdf [out/split_folder]
+
+# merge PDFs (if -o not provided you'll be prompted; default save is next to first input)
+rosdl pdf merge file1.pdf file2.pdf ... -o merged.pdf
+
+# extract text -> writes a .txt file next to input by default (will prompt for filename if not provided)
+rosdl pdf extract-text input.pdf
+rosdl pdf extract-text input.pdf --output out\custom_name.txt
+
+# convert PDF pages to images (requires Poppler)
+rosdl pdf to-images input.pdf [out/images_folder]
+
+# OCR an image or PDF page (requires Tesseract)
+# will prompt for output filename or use --output
+rosdl ocr input.png
+rosdl ocr input.png --output out\ocr_output.txt
+
+# merge all PDFs in a folder (will prompt for filename if output omitted)
+rosdl pdf merge-folder some_folder [output.pdf]
+```
+
+### Default output behavior
+- When an output path/folder is omitted, rosdl will:
+  - Prompt only for a filename/folder name (not a full path).
+  - Save the result in the same directory as the input file (or inside the input folder for merge-folder).
+  - This makes running commands on a file from Desktop create outputs on the Desktop by default.
+- You may always supply a full path (or use the relevant --output option) to save elsewhere.
+
+## Viewing extracted text
+- The extract-text and ocr commands write a .txt file. On Windows:
+```powershell
+notepad "input.txt"
+```
+- You can also direct output to stdout or pipe into pagers (Git Bash / WSL) for better preserved layout:
+```powershell
+rosdl pdf extract-text input.pdf > out\input.txt
+less -S out\input.txt
 ```
 
 ## Troubleshooting
-
-- If a CLI command complains about missing system tools, install Poppler or Tesseract and add them to PATH.
-- If `pip install -e .` fails due to extra top-level folders, remove or exclude any non-package folders (e.g. `out_dir`) from the project root or update package discovery in `pyproject.toml`.
+- If the CLI fails to import pdf/image/ocr libraries, either:
+  - install the pdf extras: python -m pip install -e ".[pdf]" or
+  - install missing packages individually.
+- If a command requires Poppler or Tesseract install those system tools and add to PATH.
+- If `pip install -e .` errors with multiple top-level folders, exclude non-package folders or update package discovery in `pyproject.toml`.
 
 ## Contributing
-
-Open a PR or issue with minimal repro steps.
+Open a PR or issue with minimal repro steps. Keep helpers small and document any system
