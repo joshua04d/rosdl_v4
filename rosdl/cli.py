@@ -1,6 +1,8 @@
 import os
 import click
+import ocr_module
 from rosdl import mat, pdf_tools
+import inspect
 
 
 # Customizing the help headers
@@ -170,6 +172,85 @@ def merge_pdfs_in_folder(input_folder, output):
 
 cli.add_command(pdf, name="pdf")
 
+# Add OCR command
+# Add/modify OCR command
+@cli.command()
+@click.argument("image_path", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Full path to save OCR .txt. If omitted you'll be prompted; default is same folder as input.")
+def ocr(image_path, output):
+    """Run OCR on an image file or PDF page and save text.
+
+    If --output is provided it is used directly. If omitted the CLI will ask whether
+    to save next to the input file (default) and prompt for a filename, or let you
+    provide a full path.
+    """
+    input_dir = os.path.dirname(os.path.abspath(image_path)) or "."
+    default_name = os.path.splitext(os.path.basename(image_path))[0] + ".txt"
+
+    if output:
+        output_path = output
+    else:
+        save_next = click.confirm("Save next to input file? (Yes = same folder, No = specify full path)", default=True)
+        if save_next:
+            name = click.prompt(click.style("Output filename (saved next to input file)", fg="cyan"), default=default_name)
+            if not name.lower().endswith(".txt"):
+                name += ".txt"
+            output_path = os.path.join(input_dir, name)
+        else:
+            path = click.prompt(click.style("Full output path (including filename)", fg="cyan"),
+                                default=os.path.join(input_dir, default_name))
+            if not path.lower().endswith(".txt"):
+                path += ".txt"
+            output_path = path
+
+    # Attempt to use ocr_module if it has a usable function, otherwise fallback to pytesseract
+    func = None
+    for name in ("extract_text", "extract_text_from_image", "ocr", "ocr_image", "image_to_text"):
+        if hasattr(ocr_module, name):
+            func = getattr(ocr_module, name)
+            break
+
+    result_text = None
+    if func:
+        try:
+            sig = inspect.signature(func)
+            # call either (path, out_path) or (path) depending on signature
+            if len(sig.parameters) == 2:
+                res = func(image_path, output_path)
+                # if function returned a path, treat it as done
+                if isinstance(res, str) and os.path.exists(res):
+                    click.echo(click.style(f"✅ OCR saved to {res}", fg="green"))
+                    return
+                # otherwise fall through to read result if it's text
+                result_text = res
+            else:
+                result_text = func(image_path)
+        except Exception as e:
+            raise click.ClickException(f"Error calling ocr_module function: {e}") from e
+    else:
+        try:
+            from PIL import Image
+            import pytesseract
+        except Exception:
+            raise click.ClickException(
+                "ocr_module has no OCR function and pytesseract is not installed. "
+                "Install optional pdf extras or add an extract function to ocr_module."
+            )
+        try:
+            img = Image.open(image_path)
+            result_text = pytesseract.image_to_string(img)
+        except Exception as e:
+            raise click.ClickException(f"OCR failed: {e}") from e
+
+    result_text = (result_text or "").strip()
+    if not result_text:
+        click.echo(click.style("⚠️ No text extracted.", fg="yellow"))
+        return
+
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(result_text)
+    click.echo(click.style(f"✅ OCR saved to {output_path}", fg="green"))
 
 if __name__ == "__main__":
     cli()
