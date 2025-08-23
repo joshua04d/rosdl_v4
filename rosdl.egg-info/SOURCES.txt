@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+rosdl/__init__.py
+rosdl/cli.py
+rosdl.egg-info/PKG-INFO
+rosdl.egg-info/SOURCES.txt
+rosdl.egg-info/dependency_links.txt
+rosdl.egg-info/entry_points.txt
+rosdl.egg-info/requires.txt
+rosdl.egg-info/top_level.txt

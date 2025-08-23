@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: rosdl
+Version: 0.0.1
+Summary: A simple Hello World CLI package
+Author-email: Your Name <you@example.com>
+Requires-Dist: click

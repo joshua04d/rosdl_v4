@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rosdl"
+version = "0.0.1"
+description = "A simple Hello World CLI package"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+dependencies = ["click"]
+
+[project.scripts]
+rosdl = "rosdl.cli:hello"
