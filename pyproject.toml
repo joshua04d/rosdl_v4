@@ -11,3 +11,7 @@ dependencies = ["click"]
 
 [project.scripts]
 rosdl = "rosdl.cli:cli"
+
+[tool.setuptools.packages.find]
+include = ["rosdl"]
+exclude = ["out_dir", "out_dir.*"]
