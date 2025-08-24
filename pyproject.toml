@@ -19,21 +19,33 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 
-#minimal base dependencies
+# minimal base dependencies
 dependencies = [
     "click"
 ]
 
 [project.optional-dependencies]
-mat=["numpy"]
-
-pdf=[
-    "PyPDF2",
-    "pdf2image",
-    "Pillow",
-    "pytesseract"
+mat = [
+    "numpy"
 ]
 
+pdf = [
+    "PyPDF2",
+    "pdf2image",
+    "Pillow"
+]
+
+ocr = [
+    "pytesseract",
+    "Pillow"   # keep here too since OCR needs it
+]
+
+meta = [
+    "python-magic",
+    "Pillow",
+    "mutagen",
+    "PyPDF2"
+]
 
 [project.scripts]
 rosdl = "rosdl.cli:cli"

@@ -1,0 +1,8 @@
+
+File: C:\Users\JOSHUA\Desktop\rosdl\smaple_image.png
+  size_bytes: 8234
+  created: 2025-08-24 02:20:40
+  modified: 2025-08-10 10:40:42
+  format: image/png
+  extension: .png
+  exif: {}

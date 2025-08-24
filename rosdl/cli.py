@@ -3,7 +3,7 @@ import click
 import ocr_module
 from rosdl import mat, pdf_tools
 import inspect
-
+from rosdl import metadata_extractor
 
 # Customizing the help headers
 class CustomHelpGroup(click.Group):
@@ -251,6 +251,35 @@ def ocr(image_path, output):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(result_text)
     click.echo(click.style(f"✅ OCR saved to {output_path}", fg="green"))
+
+# ---------------- Metadata Group -----------------
+@cli.group()
+def meta():
+    """File metadata utilities"""
+    pass
+
+
+@meta.command("file")
+@click.argument("filepath", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Custom output path for report")
+def meta_file(filepath, output):
+    """Extract metadata for a single file (always exports a .txt report)."""
+    out = metadata_extractor.extract_file(filepath, output=output, interactive=(output is None))
+    click.echo(click.style(f"✅ Metadata report saved at: {out}", fg="green"))
+
+
+@meta.command("folder")
+@click.argument("folder_path", type=click.Path(exists=True))
+@click.option("-r", "--recursive", is_flag=True, help="Recursively scan subfolders")
+@click.option("-o", "--output", type=click.Path(), help="Custom output path for report")
+def meta_folder(folder_path, recursive, output):
+    """Extract metadata for all files in a folder (always exports a .txt report)."""
+    out = metadata_extractor.extract_folder(folder_path, output=output, recursive=recursive, interactive=(output is None))
+    click.echo(click.style(f"✅ Metadata report saved at: {out}", fg="green"))
+
+
+cli.add_command(meta, name="meta")
+
 
 if __name__ == "__main__":
     cli()

@@ -69,6 +69,16 @@ rosdl ocr input.png --output out\ocr_output.txt
 
 # merge all PDFs in a folder (will prompt for filename if output omitted)
 rosdl pdf merge-folder some_folder [output.pdf]
+
+# extract metadata for a single file
+rosdl meta file sample.pdf
+
+# extract metadata for a folder
+rosdl meta folder "path_to_folder"
+
+# export metadata (json or csv)
+rosdl meta export some_folder -e json -o out\metadata.json
+rosdl meta export some_folder -e csv -o out\metadata.csv
 ```
 
 ### Default output behavior
@@ -94,7 +104,7 @@ less -S out\input.txt
   - install the pdf extras: python -m pip install -e ".[pdf]" or
   - install missing packages individually.
 - If a command requires Poppler or Tesseract install those system tools and add to PATH.
-- If `pip install -e .` errors with multiple top-level folders, exclude non-package folders or update package discovery in `pyproject.toml`.
+- If `pip install -e .` errors with multiple top-level folders, exclude non-package folders or update package discovery in `pyproje q7yyct.toml`.
 
 ## Contributing
 Open a PR or issue with minimal repro steps. Keep helpers small and document any system
