@@ -1,6 +1,6 @@
 # rosdl
-
-Minimal CLI utilities for small research workflows: simple math helpers and PDF tools (split, merge, extract text, convert to images, OCR, merge-folder).
+Rosdl: Rapid Open Source Data Library
+rosdl is a lightweight Python library that streamlines research and data workflows by combining essential utilities into one package. It offers tools for handling PDFs (split, merge, extract), performing OCR, managing archives, cleaning CSVs, converting file formats, processing images, extracting metadata, running quick EDA with drift detection, and even generating synthetic data. With both Python APIs and a simple CLI, rosdl helps researchers, students, and developers save time and focus on insights instead of struggling with scattered tools.
 
 ## Quick install
 
