@@ -17,10 +17,18 @@ python -m pip install -r requirements.txt
     ```powershell
     python -m pip install -e ".[mat]"
     ```
-  - PDF/OCR extras (requires system packages, see below):
+  - PDF extras (requires system packages, see below):
     ```powershell
     python -m pip install -e ".[pdf]"
     ```
+  - OCR extras:
+  ```powershell
+  python -m pip install -e ".[ocr]"
+  ```
+  - Meta extras:
+  ```powershell
+  python -m pip install -e ".[meta]"
+  ```
   - Or install the PDF packages individually:
     ```powershell
     python -m pip install PyPDF2 pdf2image Pillow pytesseract
