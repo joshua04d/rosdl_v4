@@ -61,15 +61,18 @@ rosdl pdf extract-text input.pdf --output out\custom_name.txt
 
 # convert PDF pages to images (requires Poppler)
 rosdl pdf to-images input.pdf [out/images_folder]
+```
 
+OCR Utilities
+```powershell
 # OCR an image or PDF page (requires Tesseract)
 # will prompt for output filename or use --output
 rosdl ocr input.png
 rosdl ocr input.png --output out\ocr_output.txt
+```
 
-# merge all PDFs in a folder (will prompt for filename if output omitted)
-rosdl pdf merge-folder some_folder [output.pdf]
-
+METADATA EXTRACTOR 
+```powershell
 # extract metadata for a single file
 rosdl meta file sample.pdf
 
