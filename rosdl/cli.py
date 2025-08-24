@@ -1,7 +1,7 @@
 import os
 import click
 import ocr_module
-from rosdl import mat, pdf_tools
+from rosdl import pdf_tools
 import inspect
 from rosdl import metadata_extractor
 
@@ -25,30 +25,30 @@ def hello():
     click.echo(click.style("👋 Hello, World from rosdl!", fg="green", bold=True))
 
 
-# ---------------- Math Group ----------------
-@cli.group()
-def mat_group():
-    """Math operations"""
-    pass
+# # ---------------- Math Group ----------------
+# @cli.group()
+# def mat_group():
+#     """Math operations"""
+#     pass
 
 
-@mat_group.command()
-@click.argument("a", type=int)
-@click.argument("b", type=int)
-def addition(a, b):
-    """Add two numbers"""
-    click.echo(mat.addition(a, b))
+# @mat_group.command()
+# @click.argument("a", type=int)
+# @click.argument("b", type=int)
+# def addition(a, b):
+#     """Add two numbers"""
+#     click.echo(mat.addition(a, b))
 
 
-@mat_group.command()
-@click.argument("a", type=int)
-@click.argument("b", type=int)
-def subtraction(a, b):
-    """Subtract two numbers"""
-    click.echo(mat.subtraction(a, b))
+# @mat_group.command()
+# @click.argument("a", type=int)
+# @click.argument("b", type=int)
+# def subtraction(a, b):
+#     """Subtract two numbers"""
+#     click.echo(mat.subtraction(a, b))
 
 
-cli.add_command(mat_group, name="mat")
+# cli.add_command(mat_group, name="mat")
 
 
 # ---------------- PDF Group -----------------

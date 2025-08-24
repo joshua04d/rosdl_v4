@@ -41,11 +41,11 @@ Basic
 rosdl hello
 ```
 
-Math
+<!-- Math
 ```powershell
 rosdl mat addition 2 3
 rosdl mat subtraction 5 1
-```
+``` -->
 
 PDF utilities
 ```powershell
@@ -91,7 +91,7 @@ rosdl meta export some_folder -e csv -o out\metadata.csv
   - This makes running commands on a file from Desktop create outputs on the Desktop by default.
 - You may always supply a full path (or use the relevant --output option) to save elsewhere.
 
-## Viewing extracted text
+<!-- ## Viewing extracted text
 - The extract-text and ocr commands write a .txt file. On Windows:
 ```powershell
 notepad "input.txt"
@@ -100,7 +100,7 @@ notepad "input.txt"
 ```powershell
 rosdl pdf extract-text input.pdf > out\input.txt
 less -S out\input.txt
-```
+``` -->
 
 ## Troubleshooting
 - If the CLI fails to import pdf/image/ocr libraries, either:

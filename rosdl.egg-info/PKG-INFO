@@ -19,7 +19,14 @@ Provides-Extra: pdf
 Requires-Dist: PyPDF2; extra == "pdf"
 Requires-Dist: pdf2image; extra == "pdf"
 Requires-Dist: Pillow; extra == "pdf"
-Requires-Dist: pytesseract; extra == "pdf"
+Provides-Extra: ocr
+Requires-Dist: pytesseract; extra == "ocr"
+Requires-Dist: Pillow; extra == "ocr"
+Provides-Extra: meta
+Requires-Dist: python-magic; extra == "meta"
+Requires-Dist: Pillow; extra == "meta"
+Requires-Dist: mutagen; extra == "meta"
+Requires-Dist: PyPDF2; extra == "meta"
 
 # rosdl
 
@@ -64,11 +71,11 @@ Basic
 rosdl hello
 ```
 
-Math
+<!-- Math
 ```powershell
 rosdl mat addition 2 3
 rosdl mat subtraction 5 1
-```
+``` -->
 
 PDF utilities
 ```powershell
@@ -84,14 +91,27 @@ rosdl pdf extract-text input.pdf --output out\custom_name.txt
 
 # convert PDF pages to images (requires Poppler)
 rosdl pdf to-images input.pdf [out/images_folder]
+```
 
+OCR Utilities
+```powershell
 # OCR an image or PDF page (requires Tesseract)
 # will prompt for output filename or use --output
 rosdl ocr input.png
 rosdl ocr input.png --output out\ocr_output.txt
+```
 
-# merge all PDFs in a folder (will prompt for filename if output omitted)
-rosdl pdf merge-folder some_folder [output.pdf]
+METADATA EXTRACTOR 
+```powershell
+# extract metadata for a single file
+rosdl meta file sample.pdf
+
+# extract metadata for a folder
+rosdl meta folder "path_to_folder"
+
+# export metadata (json or csv)
+rosdl meta export some_folder -e json -o out\metadata.json
+rosdl meta export some_folder -e csv -o out\metadata.csv
 ```
 
 ### Default output behavior
@@ -101,7 +121,7 @@ rosdl pdf merge-folder some_folder [output.pdf]
   - This makes running commands on a file from Desktop create outputs on the Desktop by default.
 - You may always supply a full path (or use the relevant --output option) to save elsewhere.
 
-## Viewing extracted text
+<!-- ## Viewing extracted text
 - The extract-text and ocr commands write a .txt file. On Windows:
 ```powershell
 notepad "input.txt"
@@ -110,14 +130,14 @@ notepad "input.txt"
 ```powershell
 rosdl pdf extract-text input.pdf > out\input.txt
 less -S out\input.txt
-```
+``` -->
 
 ## Troubleshooting
 - If the CLI fails to import pdf/image/ocr libraries, either:
   - install the pdf extras: python -m pip install -e ".[pdf]" or
   - install missing packages individually.
 - If a command requires Poppler or Tesseract install those system tools and add to PATH.
-- If `pip install -e .` errors with multiple top-level folders, exclude non-package folders or update package discovery in `pyproject.toml`.
+- If `pip install -e .` errors with multiple top-level folders, exclude non-package folders or update package discovery in `pyproje q7yyct.toml`.
 
 ## Contributing
 Open a PR or issue with minimal repro steps. Keep helpers small and document any system

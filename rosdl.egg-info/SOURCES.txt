@@ -3,7 +3,6 @@ pyproject.toml
 rosdl/__init__.py
 rosdl/addition.py
 rosdl/cli.py
-rosdl/mat.py
 rosdl/metadata_extractor.py
 rosdl/ocr_module.py
 rosdl/pdf_tools.py
