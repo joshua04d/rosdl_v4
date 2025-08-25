@@ -1,6 +1,6 @@
 import os
 import click
-import ocr_module
+from rosdl import ocr_module
 from rosdl import pdf_tools
 import inspect
 from rosdl import metadata_extractor
