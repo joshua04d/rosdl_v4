@@ -72,6 +72,13 @@ def pdf_to_images(input_pdf, output_dir):
         paths.append(path)
     return f"✅ Saved {len(paths)} images to {output_dir}"
 
+def images_to_pdf(image_list, output_pdf):
+    imgs = [Image.open(p).convert("RGB") for p in image_list]
+    if not imgs:
+        raise ValueError("No images provided for conversion.")
+    first, rest = imgs[0], imgs[1:]
+    first.save(output_pdf, save_all=True, append_images=rest)
+    return f"✅ Saved {len(imgs)} images into {output_pdf}"
 
 
 # 6. OCR Entire PDF

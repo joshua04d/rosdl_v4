@@ -4,6 +4,8 @@ from rosdl import ocr_module
 from rosdl import pdf_tools
 import inspect
 from rosdl import metadata_extractor
+from rosdl import file_converter
+
 
 # Customizing the help headers
 class CustomHelpGroup(click.Group):
@@ -279,6 +281,113 @@ def meta_folder(folder_path, recursive, output):
 
 
 cli.add_command(meta, name="meta")
+
+# =========================
+# FILE CONVERTER COMMANDS
+# =========================
+@cli.group()
+def convert():
+    """File format converters: PDF ⇄ Word, CSV ⇄ XLSX, MP4 ⇨ MP3, Images ⇄ Formats"""
+    pass
+
+
+def _resolve_output(input_file, output_file, default_ext, prompt_msg):
+    """Resolve output path with interactive prompt + defaults."""
+    input_dir = os.path.dirname(os.path.abspath(input_file)) or "."
+    default_name = os.path.splitext(os.path.basename(input_file))[0] + default_ext
+    default_path = os.path.join(input_dir, default_name)
+
+    if output_file:
+        out = output_file
+        if not out.lower().endswith(default_ext):
+            out += default_ext
+        return out
+
+    save_next = click.confirm(
+        click.style("Save next to input file? (Yes = same folder, No = specify full path)", fg="cyan"),
+        default=True
+    )
+    if save_next:
+        name = click.prompt(click.style(prompt_msg, fg="cyan"), default=default_name)
+        if not name.lower().endswith(default_ext):
+            name += default_ext
+        return os.path.join(input_dir, name)
+    else:
+        path = click.prompt(click.style("Full output path (including filename)", fg="cyan"), default=default_path)
+        if not path.lower().endswith(default_ext):
+            path += default_ext
+        return path
+
+
+# -------------------------
+# PDF → Word
+# -------------------------
+@convert.command("pdf-to-word")
+@click.argument("input_pdf", type=click.Path(exists=True))
+@click.argument("output_docx", required=False)
+def pdf_to_word_cmd(input_pdf, output_docx):
+    """Convert PDF to Word (DOCX)"""
+    output_path = _resolve_output(input_pdf, output_docx, ".docx", "Output DOCX filename")
+    msg = file_converter.pdf_to_word(input_pdf, output_path)
+    click.echo(click.style(f"✅ {msg}", fg="green"))
+
+
+# -------------------------
+# XLSX → CSV
+# -------------------------
+@convert.command("xlsx-to-csv")
+@click.argument("input_file", type=click.Path(exists=True))
+@click.argument("output_file", required=False)
+def xlsx_to_csv_cmd(input_file, output_file):
+    """Convert XLSX to CSV"""
+    output_path = _resolve_output(input_file, output_file, ".csv", "Output CSV filename")
+    msg = file_converter.xlsx_to_csv(input_file, output_path)
+    click.echo(click.style(f"✅ {msg}", fg="green"))
+
+
+# -------------------------
+# CSV → XLSX
+# -------------------------
+@convert.command("csv-to-xlsx")
+@click.argument("input_file", type=click.Path(exists=True))
+@click.argument("output_file", required=False)
+def csv_to_xlsx_cmd(input_file, output_file):
+    """Convert CSV to XLSX"""
+    output_path = _resolve_output(input_file, output_file, ".xlsx", "Output XLSX filename")
+    msg = file_converter.csv_to_xlsx(input_file, output_path)
+    click.echo(click.style(f"✅ {msg}", fg="green"))
+
+
+# -------------------------
+# MP4 → MP3
+# -------------------------
+@convert.command("mp4-to-mp3")
+@click.argument("input_file", type=click.Path(exists=True))
+@click.argument("output_file", required=False)
+def mp4_to_mp3_cmd(input_file, output_file):
+    """Extract audio from MP4 → MP3"""
+    output_path = _resolve_output(input_file, output_file, ".mp3", "Output MP3 filename")
+    msg = file_converter.mp4_to_mp3(input_file, output_path)
+    click.echo(click.style(f"✅ {msg}", fg="green"))
+
+
+# -------------------------
+# Image Format Conversion
+# -------------------------
+@convert.command("image-format")
+@click.argument("input_file", type=click.Path(exists=True))
+@click.argument("output_file", required=False)
+def image_format_cmd(input_file, output_file):
+    """Convert images between formats (e.g. JPG → PNG, PNG → WEBP)"""
+    # Here, we don’t know the default ext — so infer from user’s choice
+    input_ext = os.path.splitext(input_file)[1].lower() or ".png"
+    prompt_ext = ".png" if input_ext != ".png" else ".jpg"
+
+    output_path = _resolve_output(
+        input_file, output_file, prompt_ext, f"Output image filename (e.g. {prompt_ext})"
+    )
+    msg = file_converter.image_format_convert(input_file, output_path)
+    click.echo(click.style(f"✅ {msg}", fg="green"))
 
 
 if __name__ == "__main__":
