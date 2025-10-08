@@ -5,7 +5,7 @@ from rosdl import pdf_tools
 import inspect
 from rosdl import metadata_extractor
 from rosdl import file_converter
-
+from rosdl import image_tools
 
 # Customizing the help headers
 class CustomHelpGroup(click.Group):
@@ -388,6 +388,117 @@ def image_format_cmd(input_file, output_file):
     )
     msg = file_converter.image_format_convert(input_file, output_path)
     click.echo(click.style(f"✅ {msg}", fg="green"))
+
+# =========================
+# IMAGE TOOLS COMMANDS
+# =========================
+@click.group()
+def image():
+    """Image processing tools: resize, upscale, convert, exif, strip metadata"""
+    pass
+
+
+def _resolve_output(input_file, output_file, default_ext, prompt_msg):
+    """Resolve output path with interactive prompt + default to source folder."""
+    input_dir = os.path.dirname(os.path.abspath(input_file)) or "."
+    default_name = os.path.splitext(os.path.basename(input_file))[0] + default_ext
+    default_path = os.path.join(input_dir, default_name)
+
+    if output_file:
+        out = output_file
+        if not out.lower().endswith(default_ext):
+            out += default_ext
+        return out
+
+    save_next = click.confirm(
+        click.style("Save next to input file? (Yes = same folder, No = specify full path)", fg="cyan"),
+        default=True
+    )
+    if save_next:
+        name = click.prompt(click.style(prompt_msg, fg="cyan"), default=default_name)
+        if not name.lower().endswith(default_ext):
+            name += default_ext
+        return os.path.join(input_dir, name)
+    else:
+        path = click.prompt(click.style("Full output path (including filename)", fg="cyan"), default=default_path)
+        if not path.lower().endswith(default_ext):
+            path += default_ext
+        return path
+
+
+@image.command()
+@click.argument("input_path", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Path to save resized image")
+@click.option("--width", type=int, help="Target width in pixels")
+@click.option("--height", type=int, help="Target height in pixels")
+@click.option(
+    "--template",
+    type=click.Choice(list(image_tools.resize_templates.keys())),
+    help="Predefined resize template.\n" +
+         "\n".join([f"  {name}: {w}x{h}" for name, (w, h) in image_tools.resize_templates.items()])
+)
+def resize(input_path, output, width, height, template):
+    """Resize image using width/height or template."""
+    if template:
+        width, height = image_tools.resize_templates[template]
+    if not width or not height:
+        raise click.UsageError("Either provide --template or both --width and --height")
+
+    output_path = _resolve_output(input_path, output, ".png", "Output filename for resized image")
+    image_tools.resize_image(input_path, output_path, width, height)
+    click.echo(click.style(f"✅ Resized image saved at {output_path}", fg="green"))
+
+
+
+
+@image.command()
+@click.argument("input_path", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Path to save upscaled image")
+@click.option("--scale", type=int, required=True, help="Upscale percentage (e.g., 150 = 1.5x)")
+def upscale(input_path, output, scale):
+    """Upscale image by percentage."""
+    output_path = _resolve_output(input_path, output, ".png", "Output filename for upscaled image")
+    image_tools.upscale_image(input_path, output_path, scale)
+    click.echo(click.style(f"✅ Upscaled image saved at {output_path}", fg="green"))
+
+
+@image.command()
+@click.argument("input_path", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Path to save converted image")
+@click.option("--format", "output_format", required=True, help="Output format (JPEG, PNG, etc.)")
+def convert(input_path, output, output_format):
+    """Convert image to another format."""
+    ext = "." + output_format.lower()
+    output_path = _resolve_output(input_path, output, ext, "Output filename for converted image")
+    image_tools.convert_format(input_path, output_path, output_format)
+    click.echo(click.style(f"✅ Converted image saved at {output_path}", fg="green"))
+
+
+@image.command()
+@click.argument("input_path", type=click.Path(exists=True))
+def exif(input_path):
+    """Show EXIF metadata of an image."""
+    exif_data = image_tools.get_exif_info(input_path)
+    if not exif_data:
+        click.echo("ℹ️ No EXIF metadata found.")
+    else:
+        click.echo("\n".join(f"{k}: {v}" for k, v in exif_data.items()))
+
+
+@image.command()
+@click.argument("input_path", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Path to save image without EXIF")
+def strip(input_path, output):
+    """Remove EXIF metadata and save clean image."""
+    output_path = _resolve_output(input_path, output, ".png", "Output filename for image without EXIF")
+    image_tools.remove_exif(input_path, output_path)
+    click.echo(click.style(f"✅ Image saved without EXIF at {output_path}", fg="green"))
+
+
+# Register in main CLI
+cli.add_command(image)
+
+
 
 
 if __name__ == "__main__":
