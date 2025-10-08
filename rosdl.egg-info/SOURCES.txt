@@ -8,6 +8,7 @@ rosdl/image_tools.py
 rosdl/metadata_extractor.py
 rosdl/ocr_module.py
 rosdl/pdf_tools.py
+rosdl/text_utils_module.py
 rosdl.egg-info/PKG-INFO
 rosdl.egg-info/SOURCES.txt
 rosdl.egg-info/dependency_links.txt

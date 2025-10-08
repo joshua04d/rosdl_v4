@@ -499,6 +499,100 @@ def strip(input_path, output):
 cli.add_command(image)
 
 
+# =========================
+# TEXT UTILITIES COMMANDS
+# =========================
+from rosdl import text_utils_module as tu
+
+@cli.group()
+def text():
+    """Text utilities: clean, tokenize, stem, keywords, info"""
+    pass
+
+# -----------------------------
+# Helper to load text (file or string)
+# -----------------------------
+def _load_text(input_text):
+    if not input_text:
+        input_text = click.prompt("Enter text or file path")
+    return tu.load_text(input_text)
+
+# -----------------------------
+# Clean Text
+# -----------------------------
+@text.command("clean")
+@click.argument("input_text", required=False)
+@click.option("--remove-stopwords/--keep-stopwords", default=True, help="Remove stopwords or not")
+def clean_text(input_text, remove_stopwords):
+    """Clean input text or file content."""
+    text_content = _load_text(input_text)
+    tu_util = tu.TextUtilities()
+    cleaned = tu_util.clean_text(text_content, remove_stopwords)
+    click.echo(cleaned)
+
+# -----------------------------
+# Tokenize Text
+# -----------------------------
+@text.command("tokenize")
+@click.argument("input_text", required=False)
+def tokenize(input_text):
+    """Tokenize input text or file content into words."""
+    text_content = _load_text(input_text)
+    tu_util = tu.TextUtilities()
+    tokens = tu_util.tokenize(text_content)
+    click.echo(tokens)
+
+# -----------------------------
+# Stem Text
+# -----------------------------
+@text.command("stem")
+@click.argument("input_text", required=False)
+def stem(input_text):
+    """Stem input text or file content."""
+    text_content = _load_text(input_text)
+    tu_util = tu.TextUtilities()
+    tokens = tu_util.tokenize(text_content)
+    stemmed = tu_util.stem_words(tokens)
+    click.echo(stemmed)
+
+# -----------------------------
+# Extract Keywords
+# -----------------------------
+@text.command("keywords")
+@click.argument("input_text", required=False)
+@click.option("--top-k", default=10, help="Number of keywords to extract")
+def keywords(input_text, top_k):
+    """Extract top keywords from input text or file using TF-IDF."""
+    text_content = _load_text(input_text)
+    tu_util = tu.TextUtilities()
+    cleaned = tu_util.clean_text(text_content)
+    kws = tu_util.extract_keywords([cleaned], top_k)
+    click.echo(kws)
+
+# -----------------------------
+# Text Info
+# -----------------------------
+@text.command("info")
+@click.argument("input_text", required=False)
+def info(input_text):
+    """Get basic info/stats about text or file content."""
+    text_content = _load_text(input_text)
+    tu_util = tu.TextUtilities()
+    stats = tu_util.get_text_info(text_content)
+    
+    click.echo("📊 Text Statistics:")
+    click.echo(f"Characters: {stats['characters']}")
+    click.echo(f"Words: {stats['words']}")
+    click.echo(f"Unique Words: {stats['unique_words']}")
+    click.echo(f"Sentences: {stats['sentences']}")
+    click.echo("Top 10 Frequent Words:")
+    for word, freq in stats['top_words']:
+        click.echo(f"  {word}: {freq}")
+
+# Register the text group
+cli.add_command(text)
+
+
 
 
 if __name__ == "__main__":
