@@ -595,6 +595,105 @@ cli.add_command(text)
 
 
 
+
+# =========================
+# EDA & Drift CLI Commands with Interactive Save
+# =========================
+import pandas as pd
+from rosdl import eda_drift_module as eda
+
+@cli.group()
+def eda_cli():
+    """Quick EDA & Data Drift Analysis"""
+    pass
+
+
+def _resolve_output_interactive(input_file, output_file, default_ext, prompt_msg):
+    """Resolve output path interactively if --output is not provided."""
+    input_dir = os.path.dirname(os.path.abspath(input_file)) or "."
+    default_name = os.path.splitext(os.path.basename(input_file))[0] + default_ext
+    default_path = os.path.join(input_dir, default_name)
+
+    if output_file:
+        if not output_file.lower().endswith(default_ext):
+            output_file += default_ext
+        return output_file
+
+    # Interactive prompt
+    save_next = click.confirm(
+        click.style("Save next to input file? (Yes = same folder, No = specify full path)", fg="cyan"),
+        default=True
+    )
+    if save_next:
+        name = click.prompt(click.style(prompt_msg, fg="cyan"), default=default_name)
+        if not name.lower().endswith(default_ext):
+            name += default_ext
+        return os.path.join(input_dir, name)
+    else:
+        path = click.prompt(click.style("Full output path (including filename)", fg="cyan"), default=default_path)
+        if not path.lower().endswith(default_ext):
+            path += default_ext
+        return path
+
+
+@eda_cli.command("quick")
+@click.argument("csv_file", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Optional path to save report as CSV")
+def quick(csv_file, output):
+    """Perform quick EDA on a CSV file."""
+    df = pd.read_csv(csv_file)
+    report = eda.quick_eda(df)
+
+    # Convert report to DataFrame for saving
+    df_report = pd.DataFrame({
+        "Column": list(report['dtypes'].keys()),
+        "DataType": list(report['dtypes'].values()),
+        "Missing": [report['missing'][c] for c in report['dtypes'].keys()],
+        "Unique": [report['unique_values'][c] for c in report['dtypes'].keys()]
+    })
+
+    click.echo("\n--- Quick EDA Report ---")
+    click.echo(df_report.to_string(index=False))
+
+    # Resolve output interactively if not provided
+    output_path = _resolve_output_interactive(csv_file, output, ".csv", "Output EDA report filename")
+    df_report.to_csv(output_path, index=False)
+    click.echo(click.style(f"✅ EDA report saved to {output_path}", fg="green"))
+
+
+@eda_cli.command("drift")
+@click.argument("csv1", type=click.Path(exists=True))
+@click.argument("csv2", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), help="Optional path to save drift report as CSV")
+def drift(csv1, csv2, output):
+    """Compare two CSV files for data drift."""
+    df1 = pd.read_csv(csv1)
+    df2 = pd.read_csv(csv2)
+
+    drift_report = eda.detect_drift(df1, df2)
+
+    # Convert drift report to DataFrame
+    df_report = pd.DataFrame(drift_report, columns=["Column", "Type", "p_value"])
+    df_report["Drift_Detected"] = df_report.apply(
+        lambda row: "YES" if row["p_value"] < 0.05 and row["Type"] != "No Change" else "NO", axis=1
+    )
+
+    click.echo("\n--- Data Drift Report ---")
+    click.echo(df_report.to_string(index=False))
+
+    # Resolve output interactively if not provided
+    output_path = _resolve_output_interactive(csv1, output, ".csv", "Output drift report filename")
+    df_report.to_csv(output_path, index=False)
+    click.echo(click.style(f"✅ Drift report saved to {output_path}", fg="green"))
+
+
+# Register CLI group
+cli.add_command(eda_cli, name="eda")
+
+
+
+
+
 if __name__ == "__main__":
     cli()
 
