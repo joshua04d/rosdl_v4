@@ -239,4 +239,6 @@ Open a PR or issue with minimal repro steps. Keep helpers small and document any
 
 ## License
 
-Include your project license here (e.g. MIT) or remove this section if not applicable.
+## License
+
+This project is licensed under the MIT License. See the [LICENSE] file for details.
