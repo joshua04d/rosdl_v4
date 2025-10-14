@@ -1,7 +1,7 @@
 # test_text_utils_module.py
 
 import os
-from rosdl.core import text_utils_module as tum
+from rosdl import text_utils_module as tum
 
 # Initialize the utility class
 text_util = tum.TextUtilities()

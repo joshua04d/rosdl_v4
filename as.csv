@@ -1,5 +1,0 @@
-Column,DataType,Missing,Unique
-Column,object,0,18
-DataType,object,0,1
-Missing,int64,0,15
-Unique,int64,0,16

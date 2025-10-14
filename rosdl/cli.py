@@ -6,6 +6,8 @@ import inspect
 from rosdl import metadata_extractor
 from rosdl import file_converter
 from rosdl import image_tools
+from rosdl import data_generator
+
 
 # Customizing the help headers
 class CustomHelpGroup(click.Group):
@@ -32,8 +34,6 @@ def hello():
 # def mat_group():
 #     """Math operations"""
 #     pass
-
-
 # @mat_group.command()
 # @click.argument("a", type=int)
 # @click.argument("b", type=int)
@@ -48,8 +48,6 @@ def hello():
 # def subtraction(a, b):
 #     """Subtract two numbers"""
 #     click.echo(mat.subtraction(a, b))
-
-
 # cli.add_command(mat_group, name="mat")
 
 
@@ -686,12 +684,53 @@ def drift(csv1, csv2, output):
     df_report.to_csv(output_path, index=False)
     click.echo(click.style(f"✅ Drift report saved to {output_path}", fg="green"))
 
-
 # Register CLI group
-cli.add_command(eda_cli, name="eda")
+cli.add_command(eda_cli, name="eda_cli")
 
 
+# =========================
+# SYNTHETIC DATA GENERATION COMMANDS
+# =========================
 
+@cli.group()
+def synth():
+    """Synthetic data utilities: generate, augment, prompt"""
+    pass
+
+
+@synth.command("schema")
+@click.argument("schema_file", type=click.Path(exists=True))
+@click.option("-n", "--rows", default=100, help="Number of rows to generate.")
+@click.option("-o", "--output", type=click.Path(), help="Output CSV file.")
+def synth_schema(schema_file, rows, output):
+    """Generate synthetic data from a JSON/YAML schema."""
+    import json
+    with open(schema_file) as f:
+        schema = json.load(f)
+    fname = data_generator.generate_from_schema(schema, rows, output)
+    click.echo(click.style(f"✅ Generated data saved as {fname}", fg="green"))
+
+
+@synth.command("prompt")
+@click.argument("prompt", type=str)
+@click.option("-o", "--output", type=click.Path(), help="Output CSV file.")
+def synth_prompt(prompt, output):
+    """Generate synthetic data from text prompt."""
+    fname = data_generator.generate_from_prompt(prompt, output)
+    click.echo(click.style(f"✅ Generated data saved as {fname}", fg="green"))
+
+
+@synth.command("augment")
+@click.argument("dataset", type=click.Path(exists=True))
+@click.option("-n", "--add", default=50, help="Number of rows to add.")
+@click.option("-o", "--output", type=click.Path(), help="Output CSV file.")
+def synth_augment(dataset, add, output):
+    """Augment existing dataset with synthetic rows."""
+    fname = data_generator.augment_dataset(dataset, add, output)
+    click.echo(click.style(f"✅ Augmented dataset saved as {fname}", fg="green"))
+
+
+cli.add_command(synth, name="synth")
 
 
 if __name__ == "__main__":
